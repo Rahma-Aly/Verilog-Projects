@@ -40,4 +40,5 @@ localparam  No_Change     = 2'b00,
 	         end
 	end
 	
+	
 endmodule : ShiftReg
