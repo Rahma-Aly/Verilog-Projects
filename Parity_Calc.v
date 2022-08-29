@@ -6,7 +6,7 @@ module Parity_Calc(
 );
 
 localparam even_parity = 0,
-           odd_parity = 1;
+           odd_parity  = 1;
 
 integer counter;
 reg ones_instance;
