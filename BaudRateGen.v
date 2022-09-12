@@ -1,7 +1,7 @@
-module BaudRateGen #(parameter clk_freq = 100000000, oversampling_rate = 16)(
+module BaudRateGen #(parameter clk_freq = 100000000, oversampling_rate = 16,divisor_width = 16)(
 	input clk, 
 	input rst_n,
-	input [15:0] Divisor,  
+	input [divisor_width-1:0] Divisor,  
 	output reg BCLK //BaudRate Clk
 );
 	    /* *
@@ -13,13 +13,13 @@ module BaudRateGen #(parameter clk_freq = 100000000, oversampling_rate = 16)(
 	     *  n clk cycles = 1 UART clk cycle
 	     * */
 	     
-	reg [15:0] count;
+	reg [divisor_width-1:0] count;
 	
 	always @(posedge clk or negedge rst_n) begin : Counter_Block
 	  if (!rst_n) begin
-	      count = 16'b0; 
+	      count = 'b0; 
 	  end
-      else count = count + 16'b1; 
+      else count = count + 'b1; 
 	end
 	
 	always @(posedge clk or negedge rst_n) begin : BaudRate_generation
@@ -28,14 +28,14 @@ module BaudRateGen #(parameter clk_freq = 100000000, oversampling_rate = 16)(
 	    end
 	   else if (is_Even(Divisor)) begin
 	        if (count == Divisor*oversampling_rate/2) begin
-	        count <= 16'b0;
+	        count <= 'b0;
 	        BCLK <= ~BCLK;
 	        end
 	        else BCLK <= BCLK;              
        end
        else begin
             if (count == ((Divisor*oversampling_rate/2)+1)) begin
-            count <= 16'b0;
+            count <= 'b0;
             BCLK <= ~BCLK;
             end
             else BCLK <= BCLK; 
@@ -44,7 +44,7 @@ module BaudRateGen #(parameter clk_freq = 100000000, oversampling_rate = 16)(
 	end
 	
 function is_Even; // 0 -> odd and 1-> even
-    input [15:0] x;
+	input [divisor_width-1:0] x;
     begin
         if (x %2 == 0) is_Even = 1;
         else is_Even = 0;
