@@ -19,28 +19,29 @@ module BaudRateGen #(parameter clk_freq = 100000000, oversampling_rate = 16,divi
 	  if (!rst_n) begin
 	      count = 'b0; 
 	  end
-      else count = count + 'b1; 
+	  else if (EN) count = count + 'b1; 
 	end
 	
 	always @(posedge clk or negedge rst_n) begin : BaudRate_generation
 	    if (!rst_n) begin
 	        BCLK <= 1'b0;
 	    end
-	   else if (is_Even(Divisor)) begin
+	    else if (EN) begin
+	       if (is_Even(Divisor)) begin
 	        if (count == Divisor*oversampling_rate/2) begin
 	        count <= 'b0;
 	        BCLK <= ~BCLK;
 	        end
 	        else BCLK <= BCLK;              
-       end
-       else begin
+           end
+           else begin
             if (count == ((Divisor*oversampling_rate/2)+1)) begin
             count <= 'b0;
             BCLK <= ~BCLK;
             end
             else BCLK <= BCLK; 
            end
-           
+           end        
 	end
 	
 function is_Even; // 0 -> odd and 1-> even
