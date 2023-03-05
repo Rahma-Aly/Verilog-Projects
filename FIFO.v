@@ -1,8 +1,7 @@
 module FIFO #(parameter ADDR_WIDTH = 5, DATA_WIDTH = 8 )(
     input                       clk_read,
     input                       clk_write,
-    input                       rst_n, /*when high, the control functions are cleared , output remains
-                                        in the state of the last word shifted out*/
+    input                       rst_n,
     input [DATA_WIDTH-1:0]      DataIn,   /*Parallel data input*/
     input                       Wr_enable, /*1-> Data is loaded into reg , shift data in*/
     input                       Read_enable, /*1 -> empties locations, shift data out*/
