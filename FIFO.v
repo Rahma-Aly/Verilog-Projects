@@ -1,7 +1,8 @@
 module FIFO #(parameter ADDR_WIDTH = 5, DATA_WIDTH = 8 )(
     input                       clk_read,
     input                       clk_write,
-    input                       rst_n,
+    input                       rst_n, /*when high, the control functions are cleared , output remains
+                                        in the state of the last word shifted out*/
     input [DATA_WIDTH-1:0]      DataIn,   /*Parallel data input*/
     input                       Wr_enable, /*1-> Data is loaded into reg , shift data in*/
     input                       Read_enable, /*1 -> empties locations, shift data out*/
@@ -18,9 +19,10 @@ module FIFO #(parameter ADDR_WIDTH = 5, DATA_WIDTH = 8 )(
 	                     /*after reset both indicate the same memory location*/
 	reg [ADDR_WIDTH-1:0] counter;
 	reg                  full_reg, empty_reg;
+
 	                     
-	always @(posedge clk_read or negedge rst_n) begin : Read_Control
-	    if (~rst_n) begin
+always @(posedge clk_read or negedge rst_n) begin : Read_Control
+        if (~rst_n) begin
         r_addr  <= 0;
         Empty   <= 1;
         DataOut <= 0;
@@ -44,10 +46,10 @@ module FIFO #(parameter ADDR_WIDTH = 5, DATA_WIDTH = 8 )(
                 end       
         end
         else Empty   <= empty_reg;
-	end
-	
-	always @(posedge clk_write or negedge rst_n) begin : Write_Control
-	    if (~rst_n) begin
+    end
+    
+    always @(posedge clk_write or negedge rst_n) begin : Write_Control
+        if (~rst_n) begin
         w_addr   <= 0;
         Full     <= 0;
         end
@@ -56,7 +58,7 @@ module FIFO #(parameter ADDR_WIDTH = 5, DATA_WIDTH = 8 )(
                     Full <= 1;
                 end
                 else begin
-                    Full            <= 0;
+                    Full <= 0;    
                     dataReg[w_addr] <= DataIn;
                     counter         <= counter + 1;
                     if (w_addr == (2**ADDR_WIDTH) - 1) begin
@@ -66,23 +68,25 @@ module FIFO #(parameter ADDR_WIDTH = 5, DATA_WIDTH = 8 )(
                             w_addr <= w_addr + 1;
                     end    
                 end   
-	    end
-	    else Full <= full_reg;
-	end
+        end
+        else Full <= full_reg;
+    end
 
     always @(counter) begin : Flag_Logic
-        if (counter == (2**ADDR_WIDTH)) begin
+        if (counter == (2**ADDR_WIDTH)) begin //TODO: if it's compared with (2**ADDR_WIDTH) - 1 ,
+            //     the full flag will be high but before data is written
+            //      with this implementation, I wasn't able to test the full flag ,
+            //       but the data is written  correctly
             full_reg = 1;
-            empty_reg = 0;
         end
-        else if (counter == 0) begin
+        else if (counter == 0 ) begin
             empty_reg = 1;
-            full_reg  = 0;
         end
         else begin
                 full_reg  = 0;
                 empty_reg = 0;
         end
     end
+    
 	
 endmodule : FIFO
