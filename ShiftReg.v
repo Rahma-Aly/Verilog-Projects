@@ -20,7 +20,10 @@ localparam  No_Change     = 2'b00,
             
 	always @(posedge clk, negedge rst_n)
 	begin
-	    if (~rst_n) P_DataOut <= {(width){1'b0}};
+	    if (~rst_n) begin
+		    P_DataOut <= {(width){1'b0}};
+		    S_DataOut <= 'b0;
+	    end
 	    else begin
 	     //   P_DataOut <= P_DataIn;
 	        case (Mode_Control)
@@ -29,11 +32,11 @@ localparam  No_Change     = 2'b00,
 	            end
 	            Shift_Right: begin   
 	                P_DataOut <= {S_DataIn, P_DataOut[width-1:1]};
-	                S_DataOut = P_DataOut[0]; 
+	                S_DataOut <= P_DataOut[0]; 
 	            end
 	            Shift_Left: begin       
 	                P_DataOut <= {P_DataOut[width-2:0],S_DataIn};
-	                  S_DataOut = P_DataOut[width-1]; 
+	                  S_DataOut <= P_DataOut[width-1]; 
 	            end
 	            Parallel_Load:begin
 	                P_DataOut <= P_DataIn;
