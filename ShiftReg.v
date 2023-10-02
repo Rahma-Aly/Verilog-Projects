@@ -1,4 +1,3 @@
-
 module ShiftReg #(parameter width = 8)( 
 	input                  clk,
 	input                  rst_n,
@@ -8,6 +7,12 @@ module ShiftReg #(parameter width = 8)(
 	output reg [width-1:0] P_DataOut, //Parallel output
 	output reg             S_DataOut   //serial output
 );
+/*The operations performed by the Shift register:
+ * 1. Shift data to the right
+ * 2. shift data to the left
+ * 3. load parallel data into the register
+ * 
+ * To perform any of the first 2 operations, we first must load the parallel data in (perform the first operation)*/
 localparam  No_Change     = 2'b00,
             Shift_Right   = 2'b01,
             Shift_Left    = 2'b10,
@@ -39,6 +44,5 @@ localparam  No_Change     = 2'b00,
 	        endcase  
 	         end
 	end
-	
 	
 endmodule : ShiftReg
